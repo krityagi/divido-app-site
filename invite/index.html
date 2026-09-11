@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Open your Divido invite</title>
+  <meta name="description" content="Open a Divido group invite in the app." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,520;9..144,640&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #dce8e4;
+      --surface: #f3f8f6;
+      --ink: #0f1f1a;
+      --muted: #4f655c;
+      --line: #b7c9c1;
+      --primary: #047857;
+      --mint: #00e5a3;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(900px 480px at 10% -10%, #cfe6dd, transparent 58%), var(--bg);
+      color: var(--ink);
+      font-family: Outfit, system-ui, sans-serif;
+    }
+    main { max-width: 520px; margin: 0 auto; padding: 28px 20px 64px; }
+    .logo { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; }
+    .logo svg { width: 36px; height: 36px; }
+    .logo span { font-family: Fraunces, Georgia, serif; font-size: 1.5rem; font-weight: 640; }
+    .logo i { font-style: italic; color: var(--primary); }
+    .card {
+      margin-top: 36px;
+      padding: 28px 22px;
+      border-radius: 28px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+    }
+    .kicker { margin: 0 0 8px; color: var(--primary); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+    h1 { margin: 0 0 12px; font-family: Fraunces, Georgia, serif; font-size: 2rem; font-weight: 520; }
+    p { color: var(--muted); line-height: 1.55; }
+    .email { color: var(--ink); font-weight: 600; }
+    .open {
+      display: inline-flex;
+      margin: 8px 0 16px;
+      padding: 14px 18px;
+      border-radius: 18px;
+      background: var(--mint);
+      color: #000;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .open.hidden { display: none; }
+    .note { font-size: 0.9rem; }
+    .play { display: block; height: 48px; width: auto; margin-top: 8px; }
+    a.quiet { color: var(--primary); }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="logo" href="/">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <rect width="40" height="40" rx="12" fill="#00E5A3"></rect>
+        <path d="M13 10h7.2c6.2 0 10.4 3.8 10.4 10s-4.2 10-10.4 10H13V10z" fill="none" stroke="#0F1F1A" stroke-width="3.2"></path>
+        <path d="M20 8v24" stroke="#0F1F1A" stroke-width="2.4" stroke-linecap="round"></path>
+        <path d="M20 8v24" stroke="#DCE8E4" stroke-width="1.1" stroke-linecap="round"></path>
+      </svg>
+      <span>Div<i>i</i>do</span>
+    </a>
+
+    <section class="card">
+      <p class="kicker">Group invite</p>
+      <h1 id="title">Open Divido to join</h1>
+      <p id="copy">This invite opens in the Divido app. Sign in with the email it was sent to, then the group appears.</p>
+      <a id="open" class="open hidden" href="#">Open in Divido</a>
+      <p class="note">Need the app first?</p>
+      <img class="play" src="/google-play-badge.svg" alt="Get it on Google Play" />
+      <p class="note">Play listing can still be pending. Keep this page, install Divido, then tap Open in Divido.</p>
+      <p class="note"><a class="quiet" href="/">Back to Divido</a></p>
+    </section>
+  </main>
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var invite = (params.get('invite') || '').trim();
+      var group = (params.get('group') || '').trim();
+      var email = (params.get('email') || '').trim();
+      var title = document.getElementById('title');
+      var copy = document.getElementById('copy');
+      var open = document.getElementById('open');
+
+      if (!invite) {
+        title.textContent = 'No invite on this link';
+        copy.textContent = 'Ask your friend to share the invite from their group in Divido.';
+        return;
+      }
+
+      var appUrl = 'divido://invite?invite=' + encodeURIComponent(invite)
+        + '&group=' + encodeURIComponent(group)
+        + '&email=' + encodeURIComponent(email);
+      open.href = appUrl;
+      open.classList.remove('hidden');
+
+      if (email) {
+        copy.innerHTML = 'Open Divido signed in as <span class="email"></span>. Then this invite can add you to the group.';
+        copy.querySelector('.email').textContent = email;
+      }
+
+      var mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (mobile) {
+        window.setTimeout(function () {
+          window.location.href = appUrl;
+        }, 400);
+      }
+    })();
+  </script>
+</body>
+</html>
