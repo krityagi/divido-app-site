@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reset your Divido password</title>
+  <meta name="description" content="Choose a new Divido password." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,520;9..144,640&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #dce8e4;
+      --surface: #f3f8f6;
+      --ink: #0f1f1a;
+      --muted: #4f655c;
+      --line: #b7c9c1;
+      --primary: #047857;
+      --mint: #00e5a3;
+      --danger: #b42318;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(900px 480px at 10% -10%, #cfe6dd, transparent 58%), var(--bg);
+      color: var(--ink);
+      font-family: Outfit, system-ui, sans-serif;
+    }
+    main { max-width: 520px; margin: 0 auto; padding: 28px 20px 64px; }
+    .logo { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; }
+    .logo svg { width: 36px; height: 36px; }
+    .logo span { font-family: Fraunces, Georgia, serif; font-size: 1.5rem; font-weight: 640; }
+    .logo i { font-style: italic; color: var(--primary); }
+    .card {
+      margin-top: 36px;
+      padding: 28px 22px;
+      border-radius: 28px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+    }
+    .kicker { margin: 0 0 8px; color: var(--primary); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+    h1 { margin: 0 0 12px; font-family: Fraunces, Georgia, serif; font-size: 2rem; font-weight: 520; }
+    p { color: var(--muted); line-height: 1.55; }
+    label { display: block; margin: 12px 0 6px; font-size: 0.85rem; font-weight: 600; color: var(--ink); }
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+    }
+    .open, button[type="submit"] {
+      display: inline-flex;
+      margin: 8px 0 16px;
+      padding: 14px 18px;
+      border-radius: 18px;
+      background: var(--mint);
+      color: #000;
+      text-decoration: none;
+      font-weight: 700;
+      border: 0;
+      font: inherit;
+      cursor: pointer;
+    }
+    .open.hidden, .form.hidden { display: none; }
+    .note { font-size: 0.9rem; }
+    .error { color: var(--danger); }
+    a.quiet { color: var(--primary); }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="logo" href="/">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <rect width="40" height="40" rx="12" fill="#00E5A3"></rect>
+        <path d="M13 10h7.2c6.2 0 10.4 3.8 10.4 10s-4.2 10-10.4 10H13V10z" fill="none" stroke="#0F1F1A" stroke-width="3.2"></path>
+        <path d="M20 8v24" stroke="#0F1F1A" stroke-width="2.4" stroke-linecap="round"></path>
+        <path d="M20 8v24" stroke="#DCE8E4" stroke-width="1.1" stroke-linecap="round"></path>
+      </svg>
+      <span>Div<i>i</i>do</span>
+    </a>
+
+    <section class="card">
+      <p class="kicker">Password reset</p>
+      <h1 id="title">Choose a new password</h1>
+      <p id="copy">Set a new password here, or open the same link in the Divido app.</p>
+      <a id="open" class="open hidden" href="#">Open in Divido</a>
+      <form id="form" class="form hidden">
+        <label for="password">New password</label>
+        <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required />
+        <label for="confirm">Confirm password</label>
+        <input id="confirm" name="confirm" type="password" autocomplete="new-password" minlength="8" required />
+        <p id="error" class="error" hidden></p>
+        <button type="submit">Save password</button>
+      </form>
+      <p class="note"><a class="quiet" href="/">Back to Divido</a></p>
+    </section>
+  </main>
+  <script src="./env.js"></script>
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+    const params = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const tokenHash = (params.get('token_hash') || '').trim();
+    const type = (params.get('type') || hashParams.get('type') || 'recovery').trim();
+    const accessToken = (hashParams.get('access_token') || '').trim();
+    const refreshToken = (hashParams.get('refresh_token') || '').trim();
+
+    const title = document.getElementById('title');
+    const copy = document.getElementById('copy');
+    const open = document.getElementById('open');
+    const form = document.getElementById('form');
+    const errorEl = document.getElementById('error');
+    const config = window.__DIVIDO_RESET__ || {};
+
+    const appQuery = tokenHash
+      ? ('token_hash=' + encodeURIComponent(tokenHash) + '&type=' + encodeURIComponent(type))
+      : (accessToken && refreshToken
+        ? ('access_token=' + encodeURIComponent(accessToken) + '&refresh_token=' + encodeURIComponent(refreshToken) + '&type=recovery')
+        : '');
+
+    if (!appQuery) {
+      title.textContent = 'This reset link is missing';
+      copy.textContent = 'Request a new password reset from Divido. Old links expire.';
+    } else {
+      const appUrl = 'divido://reset-password?' + appQuery;
+      open.href = appUrl;
+      open.classList.remove('hidden');
+      if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        window.setTimeout(function () { window.location.href = appUrl; }, 400);
+      }
+    }
+
+    const canResetHere = Boolean(config.url && config.anonKey && (tokenHash || (accessToken && refreshToken)));
+    if (canResetHere) {
+      form.classList.remove('hidden');
+      const supabase = createClient(config.url, config.anonKey);
+      form.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        errorEl.hidden = true;
+        const password = document.getElementById('password').value;
+        const confirm = document.getElementById('confirm').value;
+        if (password.length < 8) {
+          errorEl.textContent = 'Use at least 8 characters.';
+          errorEl.hidden = false;
+          return;
+        }
+        if (password !== confirm) {
+          errorEl.textContent = 'Passwords do not match.';
+          errorEl.hidden = false;
+          return;
+        }
+        try {
+          if (tokenHash) {
+            const verified = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: type || 'recovery' });
+            if (verified.error) throw verified.error;
+          } else {
+            const session = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+            if (session.error) throw session.error;
+          }
+          const updated = await supabase.auth.updateUser({ password: password });
+          if (updated.error) throw updated.error;
+          title.textContent = 'Password updated';
+          copy.textContent = 'You can sign in to Divido with your new password.';
+          form.classList.add('hidden');
+          open.classList.add('hidden');
+        } catch (error) {
+          errorEl.textContent = error && error.message
+            ? error.message
+            : 'This link expired. Request a new reset from Divido.';
+          errorEl.hidden = false;
+        }
+      });
+    }
+  </script>
+</body>
+</html>

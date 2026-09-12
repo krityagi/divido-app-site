@@ -1,0 +1,1 @@
+window.__DIVIDO_RESET__={"url":"https://ghmobagewkzdgkmrsujb.supabase.co","anonKey":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdobW9iYWdld2t6ZGdrbXJzdWpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNDc5NTUsImV4cCI6MjA5MjcyMzk1NX0.iktqXCfhJy2JYEFDX2pPGnKWEvl8644gvT5Xs-zsdok"};
