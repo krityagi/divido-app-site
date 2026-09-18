@@ -96,9 +96,18 @@
         return;
       }
 
-      var appUrl = 'divido://pay?' + params.toString();
+      var safeParams = new URLSearchParams();
+      ['amount', 'currency', 'name', 'note', 'country'].forEach(function (key) {
+        var value = (params.get(key) || '').trim();
+        if (value) safeParams.set(key, value);
+      });
+      var appUrl = 'divido://pay?' + safeParams.toString();
       open.href = appUrl;
       open.classList.remove('hidden');
+
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState({}, '', '/pay/?' + safeParams.toString());
+      }
 
       var name = (params.get('name') || 'your friend').trim();
       var currency = (params.get('currency') || '').trim();
