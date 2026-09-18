@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pay in your bank app — Divido</title>
-  <meta name="description" content="Open Divido, then confirm this settlement in Monzo, Revolut, Starling, or UPI. Divido never sends the money." />
+  <title>Pay link unavailable — Divido</title>
+  <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,520;9..144,640&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -41,9 +41,9 @@
     .kicker { margin: 0 0 8px; color: var(--primary); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
     h1 { margin: 0 0 12px; font-family: Fraunces, Georgia, serif; font-size: 2rem; font-weight: 520; }
     p { color: var(--muted); line-height: 1.55; }
-    .open {
+    .home {
       display: inline-flex;
-      margin: 8px 0 16px;
+      margin-top: 8px;
       padding: 14px 18px;
       border-radius: 18px;
       background: var(--mint);
@@ -51,10 +51,6 @@
       text-decoration: none;
       font-weight: 700;
     }
-    .open.hidden { display: none; }
-    .note { font-size: 0.9rem; }
-    .play { display: block; height: 48px; width: auto; margin-top: 8px; }
-    a.quiet { color: var(--primary); }
   </style>
 </head>
 <body>
@@ -68,60 +64,12 @@
       </svg>
       <span>Div<i>i</i>do</span>
     </a>
-
     <section class="card">
       <p class="kicker">Settle up</p>
-      <h1 id="title">Open Divido, then your bank</h1>
-      <p id="copy">This link opens Divido so you can pick Monzo, Revolut, Starling, or UPI. You confirm the payment in that app. Divido never sends the money.</p>
-      <a id="open" class="open hidden" href="#">Open in Divido</a>
-      <p class="note">Need the app first?</p>
-      <a class="play-link" href="https://play.google.com/store/apps/details?id=com.dividoapp" target="_blank" rel="noreferrer">
-        <img class="play" src="/google-play-badge.svg" alt="Get it on Google Play" />
-      </a>
-      <p class="note">If Divido is already installed, tap Open in Divido, then choose your bank app.</p>
-      <p class="note"><a class="quiet" href="/">Back to Divido</a></p>
+      <h1>This pay link is not available yet</h1>
+      <p>Bank-app pay from a shared link is paused. Open Divido and settle from the group, or share bank details from Settle up as usual. Divido never sends money.</p>
+      <a class="home" href="/">Back to Divido</a>
     </section>
   </main>
-  <script>
-    (function () {
-      var params = new URLSearchParams(window.location.search);
-      var amount = (params.get('amount') || '').trim();
-      var title = document.getElementById('title');
-      var copy = document.getElementById('copy');
-      var open = document.getElementById('open');
-
-      if (!amount) {
-        title.textContent = 'No payment on this link';
-        copy.textContent = 'Ask your friend to share the payment request again from Settle up in Divido.';
-        return;
-      }
-
-      var safeParams = new URLSearchParams();
-      ['amount', 'currency', 'name', 'note', 'country'].forEach(function (key) {
-        var value = (params.get(key) || '').trim();
-        if (value) safeParams.set(key, value);
-      });
-      var appUrl = 'divido://pay?' + safeParams.toString();
-      open.href = appUrl;
-      open.classList.remove('hidden');
-
-      if (window.history && window.history.replaceState) {
-        window.history.replaceState({}, '', '/pay/?' + safeParams.toString());
-      }
-
-      var name = (params.get('name') || 'your friend').trim();
-      var currency = (params.get('currency') || '').trim();
-      title.textContent = 'Pay ' + name;
-      copy.textContent = (currency ? currency + ' ' : '') + amount +
-        ' opens in Divido, then your bank or UPI app. Divido does not send this money.';
-
-      var mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-      if (mobile) {
-        window.setTimeout(function () {
-          window.location.href = appUrl;
-        }, 400);
-      }
-    })();
-  </script>
 </body>
 </html>
